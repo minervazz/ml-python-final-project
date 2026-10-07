@@ -67,4 +67,4 @@ bash build.sh            # rerun the notebook (about 5–10 min), then compile r
 RUN=0 bash build.sh      # only recompile report and slides
 ```
 
-Figures use Times New Roman (installed by default on macOS); without it they fall back to a similar serif font.
+Figures and slides use Fira Sans (shipped with TeX Live / MacTeX; the notebook loads it through `kpsewhich`); without it the figures fall back to Helvetica / Arial.
