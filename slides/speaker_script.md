@@ -13,15 +13,16 @@ Slides: `slides/slides.pdf`. Page numbers below are PDF pages; section divider p
 
 ### p. 1 · Title (15 s)
 
-> We are Zhiran Zhang and Haolin Yang. Our project predicts whether a new user on Zindi will still be active in their second month.
+> Hi everyone, we are Zhiran Zhang and Haolin Yang. Our project predicts whether a new user on Zindi will still be active in their second month.
 
 ### p. 2 · Roadmap (20 s)
 
-> The talk follows the six grading points: problem, data, preparation, EDA, validation and models, and results.
+> Our talk follows the six grading points: problem, data, preparation, EDA, validation and models, and results.
 > The activity log of the last month stops on day 22. For this reason we trained and tested every model with two labels: label A covers the whole next month, label B only days 1 to 22. The reason is explained in part two.
 
 ### p. 3 → p. 4 · The problem and why it matters (40 s)
 
+> First we are going to talk about the problem we are solving.
 > Zindi is Africa's largest data-science competition platform. About 12 thousand people signed up in these seven months, but only 12 to 21 percent of a typical monthly cohort comes back in month two.
 > The task: at the end of a user's first month, predict whether they will do anything on Zindi next month. That is binary classification with a small positive class.
 > This matters because acquiring users is expensive and most users leave within the first month. A model allows Zindi to send retention offers only to the users who need them, which lowers cost. It also helps to select likely-engaged users for hackathons and shows which behaviours keep people on the platform.
@@ -112,7 +113,7 @@ Slides: `slides/slides.pdf`. Page numbers below are PDF pages; section divider p
 
 ### p. 23 · Thank you (10 s)
 
-> Thank you.
+> And that's all for our presentation. Thank you.
 
 ---
 
