@@ -38,8 +38,8 @@
   \item Results, impact, conclusions
 \end{enumerate}
 \column{0.42\textwidth}
-\begin{block}{Our key twist}
-The last month's log is cut at day 22, so we train and test with \textbf{two labels}:
+\begin{block}{Two label definitions}
+The M4 activity log ends on day 22. All models are trained and tested with \textbf{two labels}:
 \begin{itemize}
   \item \textbf{A}: active in the whole next month
   \item \textbf{B}: active in days 1--22 of the next month (aligned)
@@ -118,7 +118,7 @@ M4 & official test (no labels)\\\bottomrule
 \end{columns}
 \end{frame}
 
-\begin{frame}{But the hold-out labels are truncated}
+\begin{frame}{Truncated labels in the hold-out cohort}
 \begin{columns}[c]
 \column{0.4\textwidth}
 \footnotesize
@@ -140,7 +140,7 @@ Discussion & 30\\\bottomrule
 \centering\includegraphics[height=0.5\textheight]{fig02_label_window}
 \end{frame}
 
-\begin{frame}{Label-definition inconsistency and our fix \rubric{Target preprocessing}}
+\begin{frame}{Label-definition inconsistency and label B \rubric{Target preprocessing}}
 \begin{columns}[T]
 \column{0.5\textwidth}
 \textbf{With a whole-month label (A)}
@@ -154,10 +154,10 @@ Discussion & 30\\\bottomrule
 \begin{itemize}
   \item Biased F1 estimate on M3
   \item Threshold tuned on 17--21\,\% return rates, applied to an artificially low cohort
-  \item M3's dip looks like a trend, partly an artefact
+  \item Lower M3 return rate is partly an artefact of the cutoff
 \end{itemize}
 \column{0.46\textwidth}
-\begin{block}{Our fix: label B}
+\begin{block}{Label B}
 \texttt{Active} = any record in \textbf{days 1--22} of the next month, for \textbf{every} cohort, training and test.
 \end{block}
 \medskip
@@ -189,7 +189,7 @@ Late sign-ups have less time & \texttt{days\_observed}, \texttt{active\_day\_rat
 %================================================================
 \section{Exploratory analysis}
 
-\begin{frame}{EDA 1: one cohort is driven by a hackathon \rubric{EDA, 4 pts}}
+\begin{frame}{EDA 1: retention by cohort \rubric{EDA, 4 pts}}
 \includegraphics[width=\linewidth]{fig03_cohorts}
 \begin{itemize}\small
   \item M12 retains \textbf{78\,\%}: one hackathon spike ($\approx$1\,500 users on one day)
@@ -197,7 +197,7 @@ Late sign-ups have less time & \texttt{days\_observed}, \texttt{active\_day\_rat
 \end{itemize}
 \end{frame}
 
-\begin{frame}{EDA 2: recency, regularity and doing beat browsing}
+\begin{frame}{EDA 2: first-month engagement and behaviour}
 \begin{columns}[c]
 \column{0.68\textwidth}
 \includegraphics[width=\linewidth]{fig04_engagement}\\[2pt]
@@ -233,7 +233,7 @@ Fold 2 & M11 (+M12), M1 & M2\\
 Model selection by \textbf{PR-AUC}; threshold tuned on out-of-fold predictions.
 \column{0.48\textwidth}
 \includegraphics[width=\linewidth]{fig07_kfold}\\
-\small Random K-fold looks $\sim$2$\times$ better: it leaks cohort information.
+\small Random K-fold reports $\sim$2$\times$ higher PR-AUC because it leaks cohort information.
 \end{columns}
 \end{frame}
 
@@ -287,10 +287,10 @@ Best rule of thumb F1 & 0.36 & 0.40\\\bottomrule
 \end{columns}
 \end{frame}
 
-\begin{frame}{What drives the predictions?}
+\begin{frame}{Feature importance}
 \includegraphics[width=\linewidth]{fig10_drivers_B}
 \begin{itemize}\small
-  \item \textbf{Recency} first, then regularity and \emph{doing} (submissions, hackathons); demographics add little
+  \item \textbf{Recency} first, then regularity and active behaviour (submissions, hackathons); demographics add little
   \item Finds 46\,\% of returners at 44\,\% precision ($\approx$3.7$\times$ the base rate)
 \end{itemize}
 \end{frame}
@@ -317,7 +317,7 @@ Best rule of thumb F1 & 0.36 & 0.40\\\bottomrule
 \begin{itemize}\small
   \item Recovered month order; tested on the latest cohort
   \item Fixed a label-definition inconsistency (day-22 cutoff)
-  \item Recency and regularity drive retention; doing beats browsing
+  \item Recency and regularity are the main predictors; active behaviour matters more than browsing
   \item Non-stationary data: validation design mattered more than the model
 \end{itemize}
 \column{0.47\textwidth}
@@ -335,8 +335,7 @@ Best rule of thumb F1 & 0.36 & 0.40\\\bottomrule
 \end{frame}
 
 \begin{frame}[standout]
-Thank you!\\[6pt]
-\normalsize Questions?
+Thank you
 \end{frame}
 
 \end{document}
