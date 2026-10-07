@@ -30,7 +30,7 @@ We predict, at the end of a user's first month, whether the user will be active 
 The masked data first had to be put in time order and labelled by hand.
 We then found that the activity log of the last observed month stops on day 22. With the usual whole-month target (\emph{label A}),
 the hold-out cohort's labels therefore mean something different from the training labels.
-We fix this by measuring every cohort over days 1--22 of the next month (\emph{label B}) and report both versions.
+We address this by measuring every cohort over days 1--22 of the next month (\emph{label B}) and report both versions.
 With forward-chaining cross-validation and a grid search over logistic regression, random forest and gradient boosting,
 the selected gradient-boosting model reaches F1 = 0.45 on the hold-out cohort with consistent labels (0.47 with label A),
 against 0.36--0.40 for the best rule of thumb. The 20\,\% of users it ranks highest contain 62\,\% of all returners.
@@ -41,7 +41,7 @@ against 0.36--0.40 for the best rule of thumb. The 20\,\% of users it ranks high
 \label{sec:problem}
 
 \paragraph{Context.} Zindi hosts machine-learning competitions and has about 12\,k new sign-ups over the seven months in this dataset.
-Most of them are \emph{one-month tourists}: in a typical monthly cohort only 12--21\,\% of new users come back in their second month.
+Most of them do not stay: in a typical monthly cohort only 12--21\,\% of new users come back in their second month.
 
 \paragraph{Task.} For each user who registered in month $m$, predict whether the user does \emph{anything} on Zindi
 (views a page, joins a competition, submits, posts) in month $m+1$, using only what is known at the end of month $m$.
@@ -49,8 +49,8 @@ This is binary classification with a minority positive class.
 
 \paragraph{Why it matters.}
 \begin{itemize}
-  \item Acquiring users is expensive. A user who survives month 2 is much more likely to become a long-term competitor, community member and potential hire for Zindi's clients.
-  \item Churn happens fast. Zindi has to know \emph{at the end of the first month} who is about to drop out, while there is still time to act.
+  \item Acquiring users is expensive. A user who is still active in month 2 is much more likely to become a long-term competitor, community member and potential hire for Zindi's clients.
+  \item Most users leave within the first month, so Zindi has to identify them \emph{at the end of that month}, while an intervention is still possible.
 \end{itemize}
 
 \paragraph{How the model helps.}
@@ -131,7 +131,7 @@ The features are aligned (always the sign-up month), but the labels are not. Thi
   \item a \textbf{dip in M3's return rate} that is partly an artefact of the cutoff and could be misread as a real trend.
 \end{enumerate}
 
-\paragraph{Our fix.} \textbf{Label B} defines the target as ``active in days 1--22 of the next month'' for \emph{every} cohort, training and test,
+\paragraph{Label B.} We define the target as ``active in days 1--22 of the next month'' for \emph{every} cohort, training and test,
 so the definitions match. We keep the original whole-month target as \textbf{label A} and run every experiment with both.
 
 Figure~\ref{fig:window} quantifies the issue. In a normal cohort 8--11\,\% of returners are first seen after day 22. In M3 the figure is only 1.6\,\%,
@@ -216,7 +216,7 @@ The counts are very right-skewed $\Rightarrow$ log-transform them for the linear
 \caption{Left: retention of users who did or did not do each action. Right: share of users with missing country per cohort.}
 \label{fig:beh}
 \end{figure}
-\emph{Doing} things (submitting, downloading data, joining competitions, posting) predicts retention much better than \emph{reading} blog or jobs pages
+Active behaviour (submitting, downloading data, joining competitions, posting) predicts retention much better than reading blog or jobs pages
 $\Rightarrow$ keep the behaviour-family breakdown. Country is missing for 10--21\,\% of users up to M1 and 64--72\,\% from M2 on,
 which points to a change in the sign-up form. \code{country\_missing} is therefore a time proxy $\Rightarrow$ we test dropping the country features.
 Activity features are strongly collinear (Spearman $\rho$ 0.6--0.9, Figure~\ref{fig:corr}) $\Rightarrow$ L2-regularised logistic regression; trees handle collinearity natively.
@@ -256,7 +256,7 @@ For model selection we use the threshold-free \textbf{PR-AUC} (average precision
 
 \subsection{Models and hyper-parameter search}
 \begin{itemize}
-  \item \textbf{Rule-of-thumb baseline}, ``active on $\ge k$ days'', with $k$ tuned on the inner folds: what a product manager would do without ML.
+  \item \textbf{Rule-of-thumb baseline}, ``active on $\ge k$ days'', with $k$ tuned on the inner folds: a simple rule that needs no model.
   \item \textbf{Logistic regression} (log1p, scaling, L2, class-balanced): interpretable and robust to shift.
   \item \textbf{Random forest} (class-balanced): non-linear, few assumptions.
   \item \textbf{Histogram gradient boosting}: strong on tabular data, handles skewed counts and interactions.
@@ -278,7 +278,7 @@ B & LogReg & 0.463 & 0.467 & 0.427 & 0.440\\\bottomrule
 \end{tabular}
 \caption{Best cross-validated PR-AUC per model and data choice.}\label{tab:cv}
 \end{table}
-Dropping M12 from training helps every model under both labels: the event-driven cohort teaches the wrong base rate.
+Dropping M12 from training helps every model under both labels: the event-driven cohort has a different base rate.
 The country features have a small and inconsistent effect. Both labels select \textbf{gradient boosting without M12 and without country}
 (learning rate 0.03, 100 iterations, 7 leaf nodes, min.\ 80 samples per leaf).
 
@@ -318,20 +318,20 @@ B & Everyone active & -- & 0.213 & 0.120 & 1.000 & 0.120 & 0.500\\\bottomrule
 \begin{itemize}
   \item \textbf{Label A:} the selected model reaches F1 = 0.47 on M3. This number mixes two label definitions: the training labels count late returners, but the M3 labels almost cannot.
   \item \textbf{Label B:} F1 = \textbf{0.45}. Training and test labels are measured the same way, so this is the \textbf{consistent estimate} for a future cohort.
-  \item The difference (about 0.02 F1) is within the noise of a $\sim$240-positive cohort. The model choice and the conclusions are the same, so the original result was not badly wrong, but only label B is methodologically clean.
+  \item The difference (about 0.02 F1) is within the noise of a $\sim$240-positive cohort. The model choice and the conclusions are the same, so the label A result is close to the consistent estimate, but only label B uses the same label definition in training and testing.
   \item The three ML models are within $\sim$0.02 F1 of each other. We keep the CV-selected model rather than picking on the hold-out.
   \item Every ML model beats the rule of thumb (+0.05 to +0.12 F1) and ``everyone active'' (+0.24 F1 or more).
 \end{itemize}
 
-\subsection{What drives the model?}
+\subsection{Feature importance}
 \begin{figure}[H]\centering
 \includegraphics[width=\linewidth]{fig10_drivers_B}
 \caption{Permutation importance on M3 and confusion matrix at the chosen threshold (label B; label A gives the same top features).}\label{fig:drivers}
 \end{figure}
-{\sloppy Recency (\code{days\_since\_last}) is by far the strongest signal.
-Regularity (\code{active\_day\_ratio}, \code{n\_active\_days}) and \emph{doing} signals
+{\sloppy Recency (\code{days\_since\_last}) is the strongest signal.
+Regularity (\code{active\_day\_ratio}, \code{n\_active\_days}) and active-behaviour signals
 (successful-submission bucket, hackathon, competitions joined, submissions) come next. Profile variables add little, and country was dropped by the search:
-engagement is about behaviour, not demographics, which is good for fairness and for acting on the predictions.
+engagement depends on behaviour, not demographics, which supports fairness and makes the predictions easier to act on.
 At the chosen threshold the label-B model finds 46\,\% of returners with 44\,\% precision, about 3.7 times the 12\,\% base rate. \par}
 
 %=====================================================================
@@ -344,9 +344,9 @@ At the chosen threshold the label-B model finds 46\,\% of returners with 44\,\% 
 A retention campaign has a budget, so it contacts the top $x$\,\% of users ranked by the model. The two labels give almost the same curves (Figure~\ref{fig:gains}):
 \begin{itemize}
   \item The \textbf{top 20\,\%} of users by score contain \textbf{62\,\%} (B) / 63\,\% (A) of all returners; the bottom half contains only 13\,\%.
-  \item The \textbf{top decile} is about \textbf{4$\times$} more likely to return than average, which makes it the natural shortlist for hackathon invitations and ambassador programmes.
+  \item The \textbf{top decile} is about \textbf{4$\times$} more likely to return than average, which makes it a candidate list for hackathon invitations and ambassador programmes.
   \item \textbf{Illustrative business case} (our assumptions): with 2\,000 sign-ups per month and an intervention costing 5 USD per user, contacting everybody costs 10\,000 USD.
-        Contacting only the 40\,\% ``uncertain'' middle segment costs 4\,000 USD (\textbf{$-$60\,\%}) and still covers the users whose behaviour can plausibly be changed.
+        Contacting only the 40\,\% ``uncertain'' middle segment costs 4\,000 USD (\textbf{$-$60\,\%}) and still covers the users who are most likely to respond to an intervention.
   \item The \emph{causal} effect of an intervention cannot be estimated from observational data, so an \textbf{A/B test} is needed before claiming revenue impact.
 \end{itemize}
 
@@ -361,7 +361,7 @@ A retention campaign has a budget, so it contacts the top $x$\,\% of users ranke
 \begin{itemize}
   \item The labelled training set had to be reconstructed: we recovered the month order from the data and built the target. The latest labelled cohort, M3, is the hold-out.
   \item The truncated M4 log creates a label-definition inconsistency between training and test. Measuring every cohort over days 1--22 removes it at a cost of about 0.02 F1.
-  \item Recency and regularity of first-month activity predict month-2 retention far better than demographics; doing beats browsing.
+  \item Recency and regularity of first-month activity predict month-2 retention far better than demographics; active behaviour matters more than browsing.
   \item Retention is non-stationary: one hackathon raised a cohort's retention to 78\,\%, and a form change made country missing for most later users.
 \end{itemize}
 
@@ -373,7 +373,7 @@ label B ignores returns after day 22 (about 10\,\% of returners), and event coho
 \paragraph{Does the model solve the problem?}
 Largely for \emph{ranking}, partly for \emph{exact classification}. On an unseen future cohort it reaches F1 = 0.45 with consistent labels
 (0.47 with the original labels), compared with 0.36--0.40 for the best rule of thumb, and it puts 62\,\% of returners in the top 20\,\% of users.
-That is enough to make targeted retention several times cheaper than a blanket campaign.
+This makes targeted retention considerably cheaper than contacting every user.
 Absolute F1 stays moderate because many returns are triggered by future events (new competitions, hackathons) that cannot be seen in month 1.
 
 \paragraph{Next steps.} Add the competition calendar (upcoming launches) as features, train on more cohorts,
