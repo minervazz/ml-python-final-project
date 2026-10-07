@@ -6,13 +6,13 @@ Predict whether a user who signed up in month *m* is still active on Zindi in mo
 One notebook does all the analysis. The target is built in two ways and every model is trained and tested with both:
 
 | | Label A (original) | Label B (aligned) |
-|---|---|---|
+| --- | --- | --- |
 | `Active = 1` if the user has any record in … | the **whole** month after sign-up | **days 1–22** of the month after sign-up, for every cohort |
 | Why | — | The M4 activity log stops on day 22, so the hold-out cohort M3 (whose label is measured in M4) cannot see returns after day 22. With label A, training and test labels mean different things (label-definition inconsistency). Label B measures every cohort the same way. |
 
 ## Folder structure
 
-```
+```text
 ML with Python/
 ├── README.md
 ├── build.sh                         # rerun the notebook, then compile report + slides
@@ -39,14 +39,14 @@ ML with Python/
 ## What to submit
 
 | Deadline | File |
-|---|---|
+| --- | --- |
 | Presentation (Oct 7) | `slides/slides.pdf` + video link |
 | Final report (Oct 10) | `report/report.pdf` and `notebook/zindi_engagement.ipynb` (code) |
 
 ## Results on the hold-out cohort M3
 
 | | Label A (whole month) | Label B (days 1–22) |
-|---|---|---|
+| --- | --- | --- |
 | Positives in M3 | 243 of 2,000 | 239 of 2,000 |
 | Selected model (by CV PR-AUC) | GradBoost (0.508) | GradBoost (0.495) |
 | F1 / precision / recall | 0.472 / 0.451 / 0.494 | 0.450 / 0.440 / 0.460 |

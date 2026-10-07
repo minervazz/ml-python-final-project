@@ -8,3 +8,7 @@ __pycache__/
 *.snm
 *.toc
 *.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.xdv

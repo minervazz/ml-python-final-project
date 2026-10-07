@@ -1,22 +1,28 @@
 % Presentation: Predicting New-User Engagement on Zindi
 % Compile: pdflatex slides.tex (twice). Figures are produced by ../notebook/zindi_engagement.ipynb into ../figures/.
+\RequirePackage{silence}
+\WarningFilter{beamerthememetropolis}{You need to compile with XeLaTeX or LuaLaTeX}  % Fira fonts not used; Latin Modern instead
 \documentclass[aspectratio=169,10pt]{beamer}
 \usetheme[progressbar=frametitle,numbering=fraction]{metropolis}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
-\usepackage{booktabs,amsmath,graphicx}
+\usepackage{booktabs,amsmath,graphicx,array}
+\makeatletter  % metropolis title page is a \paperheight-tall box inside the frame, which overflows; use \textheight
+\expandafter\patchcmd\csname beamer@@tmpl@title page\endcsname{\paperheight}{\textheight}{}{}
+\makeatother
 \graphicspath{{../figures/}}
 \setbeamertemplate{section in toc}[sections numbered]
 \definecolor{accent}{HTML}{3A6EA5}
 \definecolor{warn}{HTML}{C0504D}
 \setbeamercolor{alerted text}{fg=warn}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcommand{\rubric}[1]{\hfill{\scriptsize\color{gray}[#1]}}
 \newcommand{\key}[1]{\begin{block}{}\centering #1\end{block}}
 
 \title{Predicting New-User Engagement on Zindi}
 \subtitle{Will a user who just signed up still be active in their second month?}
-\author{Zhiran Zhang \quad Haolin Yang}
+\author{Zhiran Zhang \texorpdfstring{\quad}{, } Haolin Yang}
 \institute{ML with Python, Final Project\\ \small Data: Zindi New User Engagement Prediction Challenge}
 \date{}
 
@@ -107,7 +113,7 @@ The M4 activity log ends on day 22. All models are trained and tested with \text
   \item $\Rightarrow$ the \textbf{latest} one, \textbf{M3}, is our hold-out test cohort
   \item Any other choice trains on the future or wastes a month of data
 \end{itemize}
-\column{0.52\textwidth}
+\column{0.54\textwidth}
 \small
 \begin{tabular}{ll}\toprule
 Cohorts & Role\\\midrule
@@ -171,13 +177,13 @@ We run everything with \textbf{A} (original) and \textbf{B} (aligned) and report
 
 \begin{frame}{Preparing the dataset \rubric{Preparation, 5 pts}}
 \footnotesize
-\begin{tabular}{p{3.7cm}p{4.3cm}p{4.0cm}}\toprule
+\begin{tabular}{L{3.7cm}L{4.3cm}L{4.0cm}}\toprule
 Issue & What we do & Why\\\midrule
 Multi-table event logs & aggregate per user, \textbf{sign-up month only} & one row per user, no leakage\\
 70+ event titles & 18 behaviour families & type of behaviour generalises\\
 Country missing (47\,\%) & \texttt{Missing} category + flag & missingness is informative\\
 146 countries & top 10 + \texttt{Other}, one-hot & avoids over-fitting rare levels\\
-\texttt{FeatureY} codes, \texttt{"count 10"} strings & one-hot; parse number, NaN $\to$ 0 & nominal codes; NaN = none\\
+\texttt{FeatureY} codes, \texttt{\textquotedbl{}count 10\textquotedbl} strings & one-hot; parse number, NaN $\to$ 0 & nominal codes; NaN = none\\
 Late sign-ups have less time & \texttt{days\_observed}, \texttt{active\_day\_ratio} & normalise by exposure\\\bottomrule
 \end{tabular}
 \medskip
@@ -264,7 +270,7 @@ Dropping M12 helps every model. Both labels select \textbf{GradBoost}.
 %================================================================
 \section{Results and impact}
 
-\begin{frame}{Hold-out results on M3: label A vs. label B \rubric{Results, 8 pts}}
+\begin{frame}{Hold-out results on M3: label A vs.\ label B \rubric{Results, 8 pts}}
 \begin{columns}[c]
 \column{0.55\textwidth}
 \includegraphics[width=\linewidth]{fig09_compare}
@@ -288,7 +294,7 @@ Best rule of thumb F1 & 0.36 & 0.40\\\bottomrule
 \end{frame}
 
 \begin{frame}{Feature importance}
-\includegraphics[width=\linewidth]{fig10_drivers_B}
+\makebox[\linewidth]{\includegraphics[width=0.94\linewidth]{fig10_drivers_B}}
 \begin{itemize}\small
   \item \textbf{Recency} first, then regularity and active behaviour (submissions, hackathons); demographics add little
   \item Finds 46\,\% of returners at 44\,\% precision ($\approx$3.7$\times$ the base rate)

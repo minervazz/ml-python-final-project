@@ -37,8 +37,7 @@ against 0.36--0.40 for the best rule of thumb. The 20\,\% of users it ranks high
 \end{abstract}
 
 %=====================================================================
-\section{Problem statement}
-\label{sec:problem}
+\section{Problem statement}\label{sec:problem}
 
 \paragraph{Context.} Zindi hosts machine-learning competitions and has about 12\,k new sign-ups over the seven months in this dataset.
 Most of them do not stay: in a typical monthly cohort only 12--21\,\% of new users come back in their second month.
@@ -61,8 +60,7 @@ This is binary classification with a minority positive class.
 \end{itemize}
 
 %=====================================================================
-\section{Data, time axis and target}
-\label{sec:data}
+\section{Data, time axis and target}\label{sec:data}
 
 \subsection{Loading the data with pandas}
 The Zindi New User Engagement Prediction Challenge provides eight relational tables linked by \code{User\_ID} and \code{Competition ID}
@@ -77,7 +75,7 @@ UserActivity & 317\,292 & 6 & page views and clicks (most of the events)\\
 CompetitionParticipation & 8\,385 & 8 & competition enrolments, submission counts\\
 Discussion & 1\,439 & 9 & forum posts\\
 Comments & 467 & 6 & blog comments\\
-Competition & 247 & 20 & competition metadata (e.g. secret code = hackathon)\\\bottomrule
+Competition & 247 & 20 & competition metadata (e.g.\ secret code = hackathon)\\\bottomrule
 \end{tabular}
 \caption{Tables used (Blogs and Jobs are not needed).}\label{tab:tables}
 \end{table}
@@ -91,16 +89,14 @@ We therefore built the labels ourselves for cohorts M11--M3, whose next month is
 
 \begin{figure}[H]\centering
 \includegraphics[width=0.78\linewidth]{fig01_time_axis}
-\caption{Events by sign-up cohort and activity month. The pattern is upper-triangular, which gives the month order. The red box is the hidden M5 activity of the official test cohort.}
-\label{fig:time}
+\caption{Events by sign-up cohort and activity month. The pattern is upper-triangular, which gives the month order. The red box is the hidden M5 activity of the official test cohort.}\label{fig:time}
 \end{figure}
 
 \paragraph{Test on the latest period.} For time-ordered data the test period must come after the training data,
 otherwise the model is trained on the future. The latest labelled cohort, \textbf{M3}, is therefore our hold-out test cohort.
 M11--M2 are used for training and cross-validation. Holding out an earlier cohort would either leave a gap in the data or put later cohorts into training.
 
-\subsection{Target definition: two versions of the label}
-\label{sec:labels}
+\subsection{Target definition: two versions of the label}\label{sec:labels}
 \code{Active} = 1 if the user has any record (activity, enrolment, discussion or comment) in the month after sign-up.
 Features use only the sign-up month, so the target cannot leak into them.
 
@@ -139,8 +135,7 @@ because those late returns are missing from the log. M3 has 243 positives under 
 
 \begin{figure}[H]\centering
 \includegraphics[width=\linewidth]{fig02_label_window}
-\caption{Left: active rate per cohort under label A and label B. Right: share of returners whose first next-month record is after day 22; M3 is low because its next month is truncated.}
-\label{fig:window}
+\caption{Left: active rate per cohort under label A and label B. Right: share of returners whose first next-month record is after day 22; M3 is low because its next month is truncated.}\label{fig:window}
 \end{figure}
 
 \subsection{X / y split}
@@ -149,8 +144,7 @@ $y_A$ (positive rate 30.5\,\%) and $y_B$ (29.4\,\%). The high overall rate comes
 The official test set $X_\text{test}$ has the 1\,382 M4 users.
 
 %=====================================================================
-\section{Data preparation}
-\label{sec:prep}
+\section{Data preparation}\label{sec:prep}
 
 Table~\ref{tab:prep} lists each transformation and the reason for it.
 
@@ -162,7 +156,7 @@ Events are in long, multi-table logs & aggregate per user, \textbf{sign-up month
 \code{Countries\_ID} missing for 47\,\% & category \code{Missing} + binary flag & missingness is informative; imputing would invent data\\
 146 masked countries & top 10 kept, rest \code{Other}, one-hot & enough users per level; avoids over-fitting rare countries\\
 \code{FeatureY} $\in\{0,1,3\}$ & one-hot & codes are nominal, not ordinal\\
-Submission count as strings (\code{"count 10"}) & parse the number; NaN $\to$ 0 & NaN means no successful submission\\
+Submission count as strings (\code{\textquotedbl{}count 10\textquotedbl}) & parse the number; NaN $\to$ 0 & NaN means no successful submission\\
 Users with no events in a table & counts $\to$ 0 & absence of activity is a true zero\\
 Late sign-ups have less time to act & \code{days\_observed}, \code{active\_day\_ratio}, \code{days\_since\_last} & normalises activity by exposure\\
 Masked month lengths; M4 log ends on day 22 & window end = last logged day of the month & exposure features consistent between train and test\\
@@ -172,6 +166,7 @@ Target can be measured in two ways & label A (whole month), label B (days 1--22)
 \end{table}
 
 \paragraph{Engineered features.}
+\begingroup\raggedright%
 \begin{itemize}
   \item \textbf{Volume and regularity:} \code{n\_events}, \code{n\_active\_days}, \code{n\_distinct\_actions}, \code{n\_distinct\_comps}, \code{active\_day\_ratio}.
   \item \textbf{Recency:} \code{days\_since\_last}, days between the last activity and the end of the month.
@@ -180,17 +175,16 @@ Target can be measured in two ways & label A (whole month), label B (days 1--22)
   \item \textbf{Community:} \code{n\_discussions}, \code{n\_comments}.
   \item \textbf{Profile:} \code{FeatureX}, \code{FeatureY}, country, \code{country\_missing}, \code{signup\_day}, \code{signup\_hour}, \code{days\_observed}.
 \end{itemize}
+\endgroup
 
 %=====================================================================
-\section{Exploratory analysis}
-\label{sec:eda}
-The figures use label A; the patterns are the same under label B. Each finding is followed by what it changes in the ML setup.
+\section{Exploratory analysis}\label{sec:eda}
+The figures use label A\@; the patterns are the same under label B\@. Each finding is followed by what it changes in the ML setup.
 
 \subsection{Retention differs strongly by cohort}
 \begin{figure}[H]\centering
 \includegraphics[width=0.95\linewidth]{fig03_cohorts}
-\caption{Left: share active in month 2 per cohort (95\,\% CI). Right: daily active M12 users during M1.}
-\label{fig:cohorts}
+\caption{Left: share active in month 2 per cohort (95\,\% CI). Right: daily active M12 users during M1.}\label{fig:cohorts}
 \end{figure}
 Four of five cohorts retain 12--21\,\%, but \textbf{M12 retains 78\,\%} (Figure~\ref{fig:cohorts}). Its M1 activity is one spike of about 1\,500 users on day 15,
 concentrated on competition \code{ID\_528W}, a secret-code hackathon. Most M12 sign-ups were event participants, and the event itself caused their ``retention''.
@@ -203,8 +197,7 @@ concentrated on competition \code{ID\_528W}, a secret-code hackathon. Most M12 s
 \subsection{First-month engagement}
 \begin{figure}[H]\centering
 \includegraphics[width=\linewidth]{fig04_engagement}
-\caption{Typical cohorts: retention by number of active days, event volume by outcome (log scale), retention by recency.}
-\label{fig:eng}
+\caption{Typical cohorts: retention by number of active days, event volume by outcome (log scale), retention by recency.}\label{fig:eng}
 \end{figure}
 Retention rises monotonically with the number of active days, from 6\,\% (no logged activity) to 55\,\% (5+ days).
 Recency matters at least as much: users seen in the last two days of the month return 39\,\% of the time, against 7\,\% for users silent for 15+ days.
@@ -213,12 +206,11 @@ The counts are very right-skewed $\Rightarrow$ log-transform them for the linear
 \subsection{Behaviour types, profile variables and correlations}
 \begin{figure}[H]\centering
 \includegraphics[width=\linewidth]{fig05_behaviour}
-\caption{Left: retention of users who did or did not do each action. Right: share of users with missing country per cohort.}
-\label{fig:beh}
+\caption{Left: retention of users who did or did not do each action. Right: share of users with missing country per cohort.}\label{fig:beh}
 \end{figure}
 Active behaviour (submitting, downloading data, joining competitions, posting) predicts retention much better than reading blog or jobs pages
 $\Rightarrow$ keep the behaviour-family breakdown. Country is missing for 10--21\,\% of users up to M1 and 64--72\,\% from M2 on,
-which points to a change in the sign-up form. \code{country\_missing} is therefore a time proxy $\Rightarrow$ we test dropping the country features.
+which points to a change in the sign-up form. The flag \code{country\_missing} is therefore a time proxy $\Rightarrow$ we test dropping the country features.
 Activity features are strongly collinear (Spearman $\rho$ 0.6--0.9, Figure~\ref{fig:corr}) $\Rightarrow$ L2-regularised logistic regression; trees handle collinearity natively.
 
 \begin{figure}[H]\centering
@@ -227,8 +219,7 @@ Activity features are strongly collinear (Spearman $\rho$ 0.6--0.9, Figure~\ref{
 \end{figure}
 
 %=====================================================================
-\section{Validation design, metric and models}
-\label{sec:val}
+\section{Validation design, metric and models}\label{sec:val}
 
 \subsection{Cross-validation: forward chaining by cohort}
 At deployment the model is trained on past cohorts and applied to a new one, so validation must do the same:
@@ -283,8 +274,7 @@ The country features have a small and inconsistent effect. Both labels select \t
 (learning rate 0.03, 100 iterations, 7 leaf nodes, min.\ 80 samples per leaf).
 
 %=====================================================================
-\section{Results}
-\label{sec:results}
+\section{Results}\label{sec:results}
 
 \subsection{Hold-out cohort M3: label A vs.\ label B}
 \begin{table}[H]\centering\small
@@ -293,13 +283,13 @@ Label & Model & Threshold & F1 & Precision & Recall & PR-AUC & ROC-AUC\\\midrule
 A & \textbf{GradBoost (selected)} & 0.32 & \textbf{0.472} & 0.451 & 0.494 & 0.479 & 0.830\\
 A & RandomForest & 0.60 & 0.462 & 0.412 & 0.527 & 0.451 & 0.817\\
 A & LogReg & 0.61 & 0.484 & 0.433 & 0.547 & 0.482 & 0.820\\
-A & Rule: active days $\ge 2$ & -- & 0.359 & 0.259 & 0.588 & -- & --\\
-A & Everyone active & -- & 0.217 & 0.122 & 1.000 & 0.122 & 0.500\\\midrule
+A & Rule: active days $\ge 2$ & \textendash{} & 0.359 & 0.259 & 0.588 & \textendash{} & \textendash{}\\
+A & Everyone active & \textendash{} & 0.217 & 0.122 & 1.000 & 0.122 & 0.500\\\midrule
 B & \textbf{GradBoost (selected)} & 0.32 & \textbf{0.450} & 0.440 & 0.460 & 0.466 & 0.829\\
 B & RandomForest & 0.62 & 0.450 & 0.408 & 0.502 & 0.443 & 0.816\\
 B & LogReg & 0.63 & 0.468 & 0.435 & 0.506 & 0.485 & 0.826\\
-B & Rule: active days $\ge 3$ & -- & 0.396 & 0.383 & 0.410 & -- & --\\
-B & Everyone active & -- & 0.213 & 0.120 & 1.000 & 0.120 & 0.500\\\bottomrule
+B & Rule: active days $\ge 3$ & \textendash{} & 0.396 & 0.383 & 0.410 & \textendash{} & \textendash{}\\
+B & Everyone active & \textendash{} & 0.213 & 0.120 & 1.000 & 0.120 & 0.500\\\bottomrule
 \end{tabular}
 \caption{Hold-out results on M3 (243 positives under A, 239 under B).}\label{tab:hold}
 \end{table}
@@ -312,7 +302,7 @@ B & Everyone active & -- & 0.213 & 0.120 & 1.000 & 0.120 & 0.500\\\bottomrule
 \begin{figure}[H]\centering
 \includegraphics[width=\linewidth]{fig08_holdout_A}\\[4pt]
 \includegraphics[width=\linewidth]{fig08_holdout_B}
-\caption{Hold-out metrics and precision--recall curves, label A (top) and label B (bottom).}\label{fig:holdout}
+\caption{Hold-out metrics and precision\textendash{}recall curves, label A (top) and label B (bottom).}\label{fig:holdout}
 \end{figure}
 
 \begin{itemize}
@@ -326,7 +316,7 @@ B & Everyone active & -- & 0.213 & 0.120 & 1.000 & 0.120 & 0.500\\\bottomrule
 \subsection{Feature importance}
 \begin{figure}[H]\centering
 \includegraphics[width=\linewidth]{fig10_drivers_B}
-\caption{Permutation importance on M3 and confusion matrix at the chosen threshold (label B; label A gives the same top features).}\label{fig:drivers}
+\caption{Permutation importance on M3 and confusion matrix at the chosen threshold (label B\@; label A gives the same top features).}\label{fig:drivers}
 \end{figure}
 {\sloppy Recency (\code{days\_since\_last}) is the strongest signal.
 Regularity (\code{active\_day\_ratio}, \code{n\_active\_days}) and active-behaviour signals
@@ -335,8 +325,7 @@ engagement depends on behaviour, not demographics, which supports fairness and m
 At the chosen threshold the label-B model finds 46\,\% of returners with 44\,\% precision, about 3.7 times the 12\,\% base rate. \par}
 
 %=====================================================================
-\section{Real-world impact}
-\label{sec:impact}
+\section{Real-world impact}\label{sec:impact}
 \begin{figure}[H]\centering
 \includegraphics[width=\linewidth]{fig11_gains}
 \caption{Cumulative gains and lift by decile on M3 for the selected model under both labels.}\label{fig:gains}
@@ -345,7 +334,7 @@ A retention campaign has a budget, so it contacts the top $x$\,\% of users ranke
 \begin{itemize}
   \item The \textbf{top 20\,\%} of users by score contain \textbf{62\,\%} (B) / 63\,\% (A) of all returners; the bottom half contains only 13\,\%.
   \item The \textbf{top decile} is about \textbf{4$\times$} more likely to return than average, which makes it a candidate list for hackathon invitations and ambassador programmes.
-  \item \textbf{Illustrative business case} (our assumptions): with 2\,000 sign-ups per month and an intervention costing 5 USD per user, contacting everybody costs 10\,000 USD.
+  \item \textbf{Illustrative business case} (our assumptions): with 2\,000 sign-ups per month and an intervention costing 5 USD per user, contacting everybody costs 10\,000 USD\@.
         Contacting only the 40\,\% ``uncertain'' middle segment costs 4\,000 USD (\textbf{$-$60\,\%}) and still covers the users who are most likely to respond to an intervention.
   \item The \emph{causal} effect of an intervention cannot be estimated from observational data, so an \textbf{A/B test} is needed before claiming revenue impact.
 \end{itemize}
@@ -355,8 +344,7 @@ A retention campaign has a budget, so it contacts the top $x$\,\% of users ranke
 \code{submission\_label\_B.csv} predicts ``active in days 1--22 of M5'' (10.2\,\%). Both rates are plausible given the 12\,\% base rate.
 
 %=====================================================================
-\section{Conclusions}
-\label{sec:conclusion}
+\section{Conclusions}\label{sec:conclusion}
 \paragraph{Findings.}
 \begin{itemize}
   \item The labelled training set had to be reconstructed: we recovered the month order from the data and built the target. The latest labelled cohort, M3, is the hold-out.

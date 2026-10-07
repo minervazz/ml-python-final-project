@@ -1,0 +1,36 @@
+{
+  // The report and slides are pdfLaTeX documents (see build.sh). The global recipe uses XeLaTeX,
+  // which makes the metropolis theme look for Fira fonts and emits font warnings.
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (pdfLaTeX)",
+      "tools": ["latexmk-pdflatex"]
+    }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk-pdflatex",
+      "command": "/Library/TeX/texbin/latexmk",
+      "args": ["-pdf", "-interaction=nonstopmode", "-file-line-error", "-outdir=%OUTDIR%", "%DOC%"],
+      "env": {
+        "PATH": "/Library/TeX/texbin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      }
+    }
+  ],
+  "latex-workshop.latex.recipe.default": "first",
+  // Keep only .tex and .pdf: remove every auxiliary file after each build, including the Beamer ones.
+  // No SyncTeX file is written; add "-synctex=1" to the args above to get PDF <-> source jumping back.
+  "latex-workshop.synctex.afterBuild.enabled": false,
+  "latex-workshop.latex.autoClean.run": "onBuilt",
+  "latex-workshop.latex.clean.method": "glob",
+  "latex-workshop.latex.clean.fileTypes": [
+    "*.aux", "*.bbl", "*.blg", "*.fdb_latexmk", "*.fls", "*.log", "*.out", "*.toc",
+    "*.nav", "*.snm", "*.vrb", "*.xdv", "*.synctex.gz", "*.synctex(busy)"
+  ],
+  // Interpreter with pandas, scikit-learn, matplotlib and seaborn (the notebook's "python3" kernel).
+  "python.defaultInterpreterPath": "/opt/anaconda3/bin/python3",
+  // Markdown is written one sentence per line and tables cannot be wrapped, so no line-length limit.
+  "markdownlint.config": {
+    "MD013": false
+  }
+}
