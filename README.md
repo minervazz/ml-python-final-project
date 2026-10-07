@@ -1,6 +1,6 @@
 # Zindi New-User Engagement Prediction: final project
 
-**Team:** Zhiran Zhang, Haolin Yang · ML with Python
+Zhiran Zhang, Haolin Yang · ML with Python
 
 Predict whether a user who signed up in month *m* is still active on Zindi in month *m + 1*.
 One notebook does all the analysis. The target is built in two ways and every model is trained and tested with both:
